@@ -1,0 +1,24 @@
+Minutes of meetings so far:
+ - update on how far each team member has progressed with their learnings
+ - completed the basic set up required which includes 
+        - minikube or kind to run kubernetes 
+        - docker to create docker images and containers 
+ - discussing problems each team member has faced till date and coming up with solutions for them
+
+
+Progress so far:
+
+Srishti:
+ - set up of Kind has been completed along with kubebuilder
+ - Gone through documentation of Kubernetes and Go
+ - having trouble with setting up docker due to hardware issues but actively working as a team to fix it
+        - Issue if not solved normally will be solved with replacement hardware
+ - learnt the basics of Go language
+ - familiarising myself with the basics of how Kubernetes works and how services behave in it 
+   This is essential to understand and figure out the approach with which we want to build the controller 
+ - Actively learning and understanding the APIs (written in Go) required to use for the building of
+   the Controller
+ - Next step: start working on the code to connect the APIs and my system in order to start on the 
+   main code 
+
+
