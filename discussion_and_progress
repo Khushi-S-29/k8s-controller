@@ -1,4 +1,5 @@
-Minutes of meetings so far:
+Minutes of meetings so far :
+05-07-2024 
  - update on how far each team member has progressed with their learnings
  - completed the basic set up required which includes 
         - minikube or kind to run kubernetes 
@@ -19,6 +20,17 @@ Srishti:
  - Actively learning and understanding the APIs (written in Go) required to use for the building of
    the Controller
  - Next step: start working on the code to connect the APIs and my system in order to start on the 
-   main code 
+   main code
+
+
+Khushi S.
+
+- learnt the fundamentals of Go language by studying the official documentation.
+- developed a web server in Go as a hands-on learning exercise.
+- acquired a foundational understanding of Docker and Kubernetes through their official documentation.
+- configured Docker Desktop and conducted practical experiments with it.
+- installed KinD (Kubernetes in Docker) and experimented with cluster creation.
+- Currently, acquainting myself with the  functionalities and underlying mechanisms of K8s and it's controllers.
+ 
 
 
