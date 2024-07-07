@@ -9,11 +9,14 @@ Meghna Mandawra
 
 
 ## Overview
-This project implements a custom Kubernetes controller designed to manage CronJobs within a Kubernetes cluster. The controller ensures that CronJobs are created, updated, or deleted based on defined specifications, providing automated management of scheduled tasks.
 
-## Features
+This project implements a Kubernetes CronJob controller in Go, designed to automate the creation, management, and scheduling of CronJobs within a Kubernetes cluster. CronJobs are scheduled tasks that run periodically based on a specified schedule, similar to cron jobs in Unix-like systems.
 
-- Automated Management:   Watches for changes to CronJob resources and automatically reconciles them with the desired state.
-- Flexible Scheduling:   Supports flexible scheduling configurations using cron expressions.
-- Error Handling:   Implements robust error handling and reconciliation mechanisms to maintain system reliability.
-- Scalability: Designed to handle multiple CronJobs and scale with cluster demands.
+The controller watches for changes to custom resources defined as CronJobs and ensures that the actual state of CronJobs matches the desired state specified in these resources. It leverages Kubernetes client libraries to interact with the Kubernetes API server, facilitating seamless integration and management of scheduled jobs.
+
+## Key Features:
+
+- Automatically manages creation and deletion of CronJobs based on custom resource definitions.
+- Supports defining CronJob schedules and other configuration parameters through custom resources.
+- Implements a reconciliation loop to handle updates and ensure desired state convergence.
+- Provides logging and basic error handling for operational visibility and reliability.
