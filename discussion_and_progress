@@ -32,5 +32,10 @@ Khushi S.
 - installed KinD (Kubernetes in Docker) and experimented with cluster creation.
 - Currently, acquainting myself with the  functionalities and underlying mechanisms of K8s and it's controllers.
  
+Meghna Mandawra
 
+- Went through kubernentes and Go's  official documentation the first 4-5 days.
+- learnt about Dockers
+- Did a local setup using KinD and tried experimenting by deploying various applications.
+- Currently learning about  APIs with Go to get a better understanding of the APIs in Kubernetes controllers which are used to manage and reconcile the state of cluster resources by interacting with the Kubernetes API server. 
 
