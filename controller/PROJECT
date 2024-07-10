@@ -1,0 +1,6 @@
+domain: gitlab.com/avengehers/k8s-controller/controller
+layout:
+- go.kubebuilder.io/v3
+projectName: controller
+repo: gitlab.com/avengehers/k8s-controller
+version: "3"
