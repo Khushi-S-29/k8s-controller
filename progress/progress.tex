@@ -1,0 +1,42 @@
+\documentclass{beamer}
+\usepackage{graphicx} 
+\usetheme{Berlin} 
+
+\defbeamertemplate*{background canvas}{custom-background}{
+    \includegraphics[width=\paperwidth,height=\paperheight]{background.png}
+}
+
+\usebackgroundtemplate{%
+    \includegraphics[width=\paperwidth,height=\paperheight]{background.png}
+}
+
+\title{Kubernetes CronJob Controller}
+\author{avengeHERs}
+\date{27th June 2024}
+\begin{document}
+
+\frame{\titlepage}
+\begin{frame}
+\frametitle{Here's the team!}
+
+\begin{itemize}
+    \item Meghna Mandawra
+    \item Srishti Dutta
+    \item Khushi S.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{PROGRESS}
+\begin{itemize}
+    \item Completed setup of Kind and Kubebuilder, essential tools for Kubernetes development.
+    \item Conducted thorough review of Kubernetes and Go programming language documentation. 
+    \item Acquired foundational knowledge of Go language, focusing on its application in Kubernetes development.
+    \item Progressed in understanding Kubernetes fundamentals and service behaviors, crucial for designing and implementing our controller.
+    \item Next steps involve coding to connect APIs with our system, initiating the main phase of our controller development.
+\end{itemize}
+\end{frame}
+\end{document}
+
+
