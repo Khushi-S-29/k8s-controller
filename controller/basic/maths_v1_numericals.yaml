@@ -1,0 +1,7 @@
+apiVersion: maths.mydomain.com/v1
+kind: Numericals
+metadata:
+  name: numericals-basic
+spec:
+  expression: "2*3"
+  
