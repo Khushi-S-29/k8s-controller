@@ -1,0 +1,16 @@
+domain: stream.com
+layout:
+- go.kubebuilder.io/v3
+projectName: math-controller
+repo: gitlab.com/avengehers/k8s-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: stream.com
+  group: maths
+  kind: Arithmetic
+  path: gitlab.com/avengehers/k8s-controller/api/v1
+  version: v1
+version: "3"

@@ -1,0 +1,31 @@
+# permissions for end users to edit arithmetics.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: arithmetic-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: math-controller
+    app.kubernetes.io/part-of: math-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: arithmetic-editor-role
+rules:
+- apiGroups:
+  - maths.stream.com
+  resources:
+  - arithmetics
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - maths.stream.com
+  resources:
+  - arithmetics/status
+  verbs:
+  - get
