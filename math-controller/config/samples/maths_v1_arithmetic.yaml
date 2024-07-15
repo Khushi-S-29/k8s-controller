@@ -7,6 +7,6 @@ metadata:
     app.kubernetes.io/part-of: math-controller
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: math-controller
-  name: multiplication -1 
+  name: multiplication-1 
 spec:
   # TODO(user): Add fields here
