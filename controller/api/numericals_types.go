@@ -29,7 +29,7 @@ type NumericalsSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Expression is an math expression field of Numericals, which the user wants to solve  numericals_types.go to remove/update
-    Expression string `json:"expression,omitempty"`
+	Expression string `json:"expression,omitempty"`
 }
 
 // NumericalsStatus defines the observed state of Numericals
@@ -37,7 +37,7 @@ type NumericalsStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// Answer is the solution to the expression
-	Answer  string  'json: "answer"'
+	Answer string `json: "answer"`
 }
 
 //+kubebuilder:object:root=true
