@@ -18,11 +18,11 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	mathsv1 "gitlab.com/avengehers/k8s-controller/api/v1"
 )
@@ -47,11 +47,15 @@ type ArithmeticReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.1/pkg/reconcile
 func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx = context.Background()
-	log = log.FromContext(ctx)
+	ctx := context.Background()
+	log := r.log.WithValues("arithmetic", req.NamespacedName)
 
-	// TODO(user): your logic here
+	var problem mathsv1.Arithmetic
+	if err := r.Get(ctx, req.NamespacedName, &problem); err != nil {
+		log.Error(err, "could not get the Arithmetic object")
+	}
 
+	log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
 	return ctrl.Result{}, nil
 }
 
