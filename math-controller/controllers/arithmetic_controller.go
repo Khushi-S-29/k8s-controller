@@ -58,6 +58,8 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
+	log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
+
 	return ctrl.Result{}, nil
 }
 
