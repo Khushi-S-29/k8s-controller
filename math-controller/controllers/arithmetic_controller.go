@@ -19,8 +19,11 @@ package controllers
 import (
 	"context"
 	"fmt"
-
+    
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -83,8 +86,32 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
     log.Info("Running the container")
-	
+
 	return ctrl.Result{}, nil
+}
+
+func readPodLogs(pod corev1.Pod) (string, error) {
+	config := ctrl.GetConfigOrDie()
+	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return "", err
+	}
+
+	req := clientSet.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &corev1.PodLogOptions{})
+
+	reader, err := req.Stream()
+	if err != nil {
+		return "", err
+	}
+
+	defer reader.Close()
+
+	answer, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return string(answer), nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
