@@ -81,27 +81,49 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
     
 	
-	if err := r.Create(ctx, &pod, &client.CreateOptions{}); err != nil {
-		log.Error(err, "could not create the container")
-		return ctrl.Result{}, err
-	}
-    log.Info("Running the container")
+	if problem.Status.Answer == "" {
+		log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
+		log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
 
-	time.Sleep(10 * time.Second)
-    
-    answer, err := readPodLogs(pod)
-	if err != nil{
-		log.Error(err, " could not read logs ")
-		return ctrl.Result{} , err
-	}
+		pod := corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      fmt.Sprintf("job-%s", req.Name),
+				Namespace: "default",
+			},
+			Spec: corev1.PodSpec{
+				RestartPolicy: "Never",
+				Containers: []corev1.Container{
+					{
+						Name:  "problem-solver",
+						Image: "python:latest",
+						Args:  []string{"python", "-c", fmt.Sprintf("print(%s)", problem.Spec.Expression)},
+					},
+				},
+			},
+		}
 
-	log.Info(fmt.Sprintf("Answer is %s", answer))
+		if err := r.Create(ctx, &pod, &client.CreateOptions{}); err != nil {
+			log.Error(err, "could not create the container")
+			return ctrl.Result{}, err
+		}
+		log.Info("Created the container")
+		time.Sleep(10 * time.Second)
 
-	problem.Status.Answer = answer
-	if err := r.Update(ctx, &problem, &client.UpdateOptions{}); err != nil {
+		answer, err := readPodLogs(pod)
+		if err != nil {
+			log.Error(err, "could not read logs")
+			return ctrl.Result{}, err
+		}
+
+		log.Info(fmt.Sprintf("Answer is %s", answer))
+
+		problem.Status.Answer = answer
+		if err := r.Update(ctx, &problem, &client.UpdateOptions{}); err != nil {
 			log.Error(err, "could not update resource")
 			return ctrl.Result{}, err
+		}
 	}
+
 
 	return ctrl.Result{}, nil
 }
