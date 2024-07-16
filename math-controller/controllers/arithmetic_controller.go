@@ -87,6 +87,22 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
     log.Info("Running the container")
 
+	time.Sleep(10 * time.Second)
+    
+    answer, err := readPodLogs(pod)
+	if err != nil{
+		log.Error(err, " could not read logs ")
+		return ctrl.Result{} , err
+	}
+
+	log.Info(fmt.Sprintf("Answer is %s", answer))
+
+	problem.Status.Answer = answer
+	if err := r.Update(ctx, &problem, &client.UpdateOptions{}); err != nil {
+			log.Error(err, "could not update resource")
+			return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
