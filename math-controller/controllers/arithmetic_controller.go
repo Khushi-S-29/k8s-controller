@@ -59,7 +59,31 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
 	log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
-
+    
+	pod := corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("job-%s", req.Name),
+			Namespace: "default",
+		},
+		Spec: corev1.PodSpec{
+			RestartPolicy: "Never",
+			Containers: []corev1.Container{
+				{
+					Name:  "problem-solver",
+					Image: "python : latest",
+					Args:  []string{"python", "-c", fmt.Sprintf("print(%s)", problem.Spec.Expression)},
+				},
+			},
+		},
+	}
+    
+	
+	if err := r.Create(ctx, &pod, &client.CreateOptions{}); err != nil {
+		log.Error(err, "could not create the container")
+		return ctrl.Result{}, err
+	}
+    log.Info("Running the container")
+	
 	return ctrl.Result{}, nil
 }
 
