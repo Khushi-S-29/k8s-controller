@@ -19,6 +19,8 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"time" // Importing the time package
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,7 +33,7 @@ import (
 	mathsv1 "gitlab.com/avengehers/k8s-controller/api/v1"
 )
 
-// ArithmeticReconciler reconciles a Arithmetic object
+// ArithmeticReconciler reconciles an Arithmetic object
 type ArithmeticReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
@@ -41,9 +43,9 @@ type ArithmeticReconciler struct {
 //+kubebuilder:rbac:groups=maths.stream.com,resources=arithmetics/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=maths.stream.com,resources=arithmetics/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// Reconcile is part of the main Kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
+// TODO: Modify the Reconcile function to compare the state specified by
 // the Arithmetic object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
@@ -58,27 +60,11 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	var problem mathsv1.Arithmetic
 	if err := r.Get(ctx, req.NamespacedName, &problem); err != nil {
 		log.Error(err, "could not get the Arithmetic object")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
 	log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
 	log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
-
-	pod := corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("job-%s", req.Name),
-			Namespace: "default",
-		},
-		Spec: corev1.PodSpec{
-			RestartPolicy: "Never",
-			Containers: []corev1.Container{
-				{
-					Name:  "problem-solver",
-					Image: "python : latest",
-					Args:  []string{"python", "-c", fmt.Sprintf("print(%s)", problem.Spec.Expression)},
-				},
-			},
-		},
-	}
 
 	if problem.Status.Answer == "" {
 		log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
@@ -90,7 +76,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				Namespace: "default",
 			},
 			Spec: corev1.PodSpec{
-				RestartPolicy: "Never",
+				RestartPolicy: corev1.RestartPolicyNever, // Use the constant from the corev1 package
 				Containers: []corev1.Container{
 					{
 						Name:  "problem-solver",
@@ -108,7 +94,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		log.Info("Created the container")
 		time.Sleep(10 * time.Second)
 
-		answer, err := readPodLogs(pod)
+		answer, err := readPodLogs(ctx, pod)
 		if err != nil {
 			log.Error(err, "could not read logs")
 			return ctrl.Result{}, err
@@ -126,7 +112,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	return ctrl.Result{}, nil
 }
 
-func readPodLogs(pod corev1.Pod) (string, error) {
+func readPodLogs(ctx context.Context, pod corev1.Pod) (string, error) {
 	config := ctrl.GetConfigOrDie()
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -135,11 +121,10 @@ func readPodLogs(pod corev1.Pod) (string, error) {
 
 	req := clientSet.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &corev1.PodLogOptions{})
 
-	reader, err := req.Stream()
+	reader, err := req.Stream(ctx) // Pass context to Stream
 	if err != nil {
 		return "", err
 	}
-
 	defer reader.Close()
 
 	answer, err := ioutil.ReadAll(reader)
