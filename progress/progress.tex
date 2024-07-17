@@ -12,7 +12,7 @@
 
 \title{Kubernetes CronJob Controller}
 \author{avengeHERs}
-\date{15th July 2024}
+\date{17th July 2024}
 \begin{document}
 
 \frame{\titlepage}
@@ -48,11 +48,11 @@
 \begin{itemize}
     \item created an API for our custom resource.
     \item defined the Custom Resource.
-    \begin{itemize}
-        \item spec 
-        \item status 
-    \end{itemize}
-    \item implemented the reconciliation logic
+    \item Created a unique pod designed to address specific issues.
+
+    \item Implemented reconciliation logic to ensure the Pod object is created and maintained.
+    \item Implemented readPodLogs to retrieve and return logs from a specified Pod using the Kubernetes client-go library.
+     \item Ran tests on the controller to check if it was reconciling properly.
 \end{itemize}
 \end{frame}
 
@@ -60,12 +60,6 @@
 \begin{frame}
     \frametitle{Next Steps}
 \begin{itemize}
-    \item By 17/07/24:
-    \begin{itemize}
-        \item Update the CRD Manifest
-        \item Create a sample custom resource to test.
-        \item Complete building a very basic controller (for basic arithmetic operations).
-    \end{itemize}
     \item By 19/07/24:
     \begin{itemize}
         \item Build the final controller.
