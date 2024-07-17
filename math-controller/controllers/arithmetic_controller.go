@@ -19,7 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
-    
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -62,7 +62,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
 	log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
-    
+
 	pod := corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("job-%s", req.Name),
@@ -79,8 +79,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			},
 		},
 	}
-    
-	
+
 	if problem.Status.Answer == "" {
 		log.Info(fmt.Sprintf("Reconciling for %s", req.NamespacedName))
 		log.Info(fmt.Sprintf("Expression: %s", problem.Spec.Expression))
@@ -123,7 +122,6 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			return ctrl.Result{}, err
 		}
 	}
-
 
 	return ctrl.Result{}, nil
 }
