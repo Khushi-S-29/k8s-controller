@@ -141,3 +141,19 @@ func (r *ArithmeticReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&mathsv1.Arithmetic{}).
 		Complete(r)
 }
+
+import (
+    "fmt"
+)
+
+func main() {
+    // Simulating fetching operands or receiving them as arguments
+    operand1 := 10
+    operand2 := 5
+
+    // Compute the multiplication
+    result := operand1 * operand2
+
+    // Log the result
+    fmt.Printf("Answer is: %d\n", result)
+}
