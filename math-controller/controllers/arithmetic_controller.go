@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"time" // Importing the time package
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -36,6 +37,7 @@ import (
 // ArithmeticReconciler reconciles an Arithmetic object
 type ArithmeticReconciler struct {
 	client.Client
+	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
@@ -76,7 +78,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				Namespace: "default",
 			},
 			Spec: corev1.PodSpec{
-				RestartPolicy: corev1.RestartPolicyNever, // Use the constant from the corev1 package
+				RestartPolicy: "Never", // Use the constant from the corev1 package
 				Containers: []corev1.Container{
 					{
 						Name:  "problem-solver",
@@ -94,7 +96,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		log.Info("Created the container")
 		time.Sleep(10 * time.Second)
 
-		answer, err := readPodLogs(ctx, pod)
+		answer, err := readPodLogs(pod)
 		if err != nil {
 			log.Error(err, "could not read logs")
 			return ctrl.Result{}, err
@@ -112,7 +114,7 @@ func (r *ArithmeticReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	return ctrl.Result{}, nil
 }
 
-func readPodLogs(ctx context.Context, pod corev1.Pod) (string, error) {
+func readPodLogs(pod corev1.Pod) (string, error) {
 	config := ctrl.GetConfigOrDie()
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -140,20 +142,4 @@ func (r *ArithmeticReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mathsv1.Arithmetic{}).
 		Complete(r)
-}
-
-import (
-    "fmt"
-)
-
-func main() {
-    // Simulating fetching operands or receiving them as arguments
-    operand1 := 10
-    operand2 := 5
-
-    // Compute the multiplication
-    result := operand1 * operand2
-
-    // Log the result
-    fmt.Printf("Answer is: %d\n", result)
 }
