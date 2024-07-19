@@ -12,7 +12,7 @@
 
 \title{Kubernetes CronJob Controller}
 \author{avengeHERs}
-\date{17th July 2024}
+\date{19th July 2024}
 \begin{document}
 
 \frame{\titlepage}
@@ -43,13 +43,13 @@
 
 \end{itemize}
 \end{frame}
+
 \begin{frame}
     \frametitle{Progress}
 \begin{itemize}
     \item created an API for our custom resource.
     \item defined the Custom Resource.
     \item Created a unique pod designed to address specific issues.
-
     \item Implemented reconciliation logic to ensure the Pod object is created and maintained.
     \item Implemented readPodLogs to retrieve and return logs from a specified Pod using the Kubernetes client-go library.
      \item Ran tests on the controller to check if it was reconciling properly.
@@ -58,6 +58,7 @@
 
 \begin{frame}
     \frametitle{Challenges Faced}
+    \begin{itemize}
     \item Setup Complexity:
     \begin{itemize}
         \item Configuration challenges due to unfamiliar system requirements.
@@ -68,11 +69,8 @@
         \item Version conflicts causing installation delays.
         \item Challenges with package downloads due to connectivity issues.
     \end{itemize}
-\begin{itemize}
-        
-\end{itemize}
+    \end{itemize}
 \end{frame}
-
 
 \begin{frame}
     \frametitle{Next Steps}
