@@ -41,14 +41,7 @@ type CronJobSpec struct {
     
 	FailedJobsHistoryLimit *int32 `json:"failedJobsHistoryLimit,omitempty"`
 }
-
-// CronJobStatus defines the observed state of CronJob
-type CronJobStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
-
-// ConcurrencyPolicy describes how the job will be handled.
+//ConcurrencyPolicy describes how the job will be handled.
 // Only one of the following concurrent policies may be specified.
 // If none of the following policies is specified, the default one
 // is AllowConcurrent.
@@ -66,6 +59,23 @@ const (
     // ReplaceConcurrent cancels currently running job and replaces it with a new one.
     ReplaceConcurrent ConcurrencyPolicy = "Replace"
 )
+
+// CronJobStatus defines the observed state of CronJob
+type CronJobStatus struct {
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+    // Important: Run "make" to regenerate code after modifying this file
+
+    // A list of pointers to currently running jobs.
+    // +optional
+    Active []corev1.ObjectReference `json:"active,omitempty"`
+
+    // Information when was the last time the job was successfully scheduled.
+    // +optional
+    LastScheduleTime *metav1.Time `json:"lastScheduleTime,omitempty"`
+}
+
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
