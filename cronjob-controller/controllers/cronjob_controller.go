@@ -18,25 +18,36 @@ package controllers
 
 import (
 	"context"
+    "fmt"
+    "sort"
+    "time"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
+    "github.com/robfig/cron"
+    kbatch "k8s.io/api/batch/v1"
+    corev1 "k8s.io/api/core/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/apimachinery/pkg/runtime"
+    ref "k8s.io/client-go/tools/reference"
+    ctrl "sigs.k8s.io/controller-runtime"
+    "sigs.k8s.io/controller-runtime/pkg/client"
+    "sigs.k8s.io/controller-runtime/pkg/log"
 
-	batchv1 "tutorial.kubebuilder.io/project/api/v1"
+    batchv1 "tutorial.kubebuilder.io/project/api/v1"
 )
 
 // CronJobReconciler reconciles a CronJob object
 type CronJobReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	Clock
 }
 
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs/finalizers,verbs=update
-
+var (
+    scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
+)
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -47,7 +58,7 @@ type CronJobReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.1/pkg/reconcile
 func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
 	// TODO(user): your logic here
 
