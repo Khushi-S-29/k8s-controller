@@ -27,9 +27,19 @@ import (
 type CronJobSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+    Schedule string `json:"schedule"`
 
-	// Foo is an example field of CronJob. Edit cronjob_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	StartingDeadlineSeconds *int64 `json:"startingDeadlineSeconds,omitempty"`
+    
+	ConcurrencyPolicy ConcurrencyPolicy `json:"concurrencyPolicy,omitempty"`
+	
+	Suspend *bool `json:"suspend,omitempty"`
+	
+	JobTemplate batchv1.JobTemplateSpec `json:"jobTemplate"`
+	
+	SuccessfulJobsHistoryLimit *int32 `json:"successfulJobsHistoryLimit,omitempty"`
+    
+	FailedJobsHistoryLimit *int32 `json:"failedJobsHistoryLimit,omitempty"`
 }
 
 // CronJobStatus defines the observed state of CronJob
