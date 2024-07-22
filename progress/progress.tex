@@ -12,7 +12,7 @@
 
 \title{Kubernetes CronJob Controller}
 \author{avengeHERs}
-\date{19th July 2024}
+\date{22th July 2024}
 \begin{document}
 
 \frame{\titlepage}
@@ -52,7 +52,20 @@
     \item Created a unique pod designed to address specific issues.
     \item Implemented reconciliation logic to ensure the Pod object is created and maintained.
     \item Implemented readPodLogs to retrieve and return logs from a specified Pod using the Kubernetes client-go library.
-     \item Ran tests on the controller to check if it was reconciling properly.
+    \item Ran tests on the controller to check if it was reconciling properly.
+\end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Progress}
+\begin{itemize}
+    \item Started working on Cronjob Controller.
+    \begin{itemize}
+        \item Added the resources created by kubebuilder.
+        \item Initialised the kubebuilder project and called the api.
+        \item Added the Cronjob Specs.
+        \item Added the policy to check concurrency.
+        \item Added the code for the cronjob status.
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
