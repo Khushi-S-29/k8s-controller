@@ -1,4 +1,4 @@
-module my.domain/k8s-cronjob
+module tutorial.kubebuilder.io/k8s-cronjob
 
 go 1.22.0
 

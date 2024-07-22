@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"my.domain/k8s-cronjob/test/utils"
+	"tutorial.kubebuilder.io/k8s-cronjob/test/utils"
 )
 
 const namespace = "k8s-cronjob-system"

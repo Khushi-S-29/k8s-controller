@@ -1,5 +1,4 @@
 ## Append samples of your project ##
 resources:
-- webapp_v1_k8s-cronjob.yaml
-- mygroup_v1_cronjob.yaml
+- batch_v1_cronjob.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

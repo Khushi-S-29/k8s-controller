@@ -2,19 +2,19 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: my.domain
+domain: tutorial.kubebuilder.io
 layout:
 - go.kubebuilder.io/v4
 projectName: k8s-cronjob
-repo: my.domain/k8s-cronjob
+repo: tutorial.kubebuilder.io/k8s-cronjob
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: my.domain
-  group: mygroup
+  domain: tutorial.kubebuilder.io
+  group: batch
   kind: CronJob
-  path: my.domain/k8s-cronjob/api/v1
+  path: tutorial.kubebuilder.io/k8s-cronjob/api/v1
   version: v1
 version: "3"

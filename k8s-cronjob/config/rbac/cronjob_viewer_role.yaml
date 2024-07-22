@@ -8,7 +8,7 @@ metadata:
   name: cronjob-viewer-role
 rules:
 - apiGroups:
-  - mygroup.my.domain
+  - batch.tutorial.kubebuilder.io
   resources:
   - cronjobs
   verbs:
@@ -16,7 +16,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - mygroup.my.domain
+  - batch.tutorial.kubebuilder.io
   resources:
   - cronjobs/status
   verbs:

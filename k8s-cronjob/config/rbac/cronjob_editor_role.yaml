@@ -8,7 +8,7 @@ metadata:
   name: cronjob-editor-role
 rules:
 - apiGroups:
-  - mygroup.my.domain
+  - batch.tutorial.kubebuilder.io
   resources:
   - cronjobs
   verbs:
@@ -20,7 +20,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - mygroup.my.domain
+  - batch.tutorial.kubebuilder.io
   resources:
   - cronjobs/status
   verbs:

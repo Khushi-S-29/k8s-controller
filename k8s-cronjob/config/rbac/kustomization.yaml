@@ -24,6 +24,4 @@ resources:
 # if you do not want those helpers be installed with your Project.
 - cronjob_editor_role.yaml
 - cronjob_viewer_role.yaml
-- k8s-cronjob_editor_role.yaml
-- k8s-cronjob_viewer_role.yaml
 

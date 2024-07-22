@@ -1,4 +1,4 @@
-apiVersion: mygroup.my.domain/v1
+apiVersion: batch.tutorial.kubebuilder.io/v1
 kind: CronJob
 metadata:
   labels:
