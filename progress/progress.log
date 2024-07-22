@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.6.18)  19 JUL 2024 17:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.6.18)  22 JUL 2024 18:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -887,16 +887,23 @@ Package pdftex.def Info: background.png  used on input line 57.
 ]
 File: background.png Graphic file (type png)
 <use background.png>
-Package pdftex.def Info: background.png  used on input line 73.
+Package pdftex.def Info: background.png  used on input line 70.
 (pdftex.def)             Requested size: 364.20155pt x 273.15117pt.
  [5
 
 ]
 File: background.png Graphic file (type png)
 <use background.png>
-Package pdftex.def Info: background.png  used on input line 82.
+Package pdftex.def Info: background.png  used on input line 86.
 (pdftex.def)             Requested size: 364.20155pt x 273.15117pt.
  [6
+
+]
+File: background.png Graphic file (type png)
+<use background.png>
+Package pdftex.def Info: background.png  used on input line 95.
+(pdftex.def)             Requested size: 364.20155pt x 273.15117pt.
+ [7
 
 ]
 \tf@nav=\write6
@@ -913,20 +920,20 @@ Package rerunfilecheck Info: File `progress.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 21633 strings out of 478287
- 424595 string characters out of 5849289
+ 21637 strings out of 478287
+ 424628 string characters out of 5849289
  679825 words of memory out of 5000000
- 39387 multiletter control sequences out of 15000+600000
+ 39389 multiletter control sequences out of 15000+600000
  471376 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,15n,122p,409b,562s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb>
-Output written on progress.pdf (6 pages, 69417 bytes).
+Output written on progress.pdf (7 pages, 70827 bytes).
 PDF statistics:
- 197 PDF objects out of 1000 (max. 8388607)
- 172 compressed objects within 2 object streams
- 13 named destinations out of 1000 (max. 500000)
+ 225 PDF objects out of 1000 (max. 8388607)
+ 199 compressed objects within 2 object streams
+ 15 named destinations out of 1000 (max. 500000)
  48 words of extra memory for PDF output out of 10000 (max. 10000000)
 
