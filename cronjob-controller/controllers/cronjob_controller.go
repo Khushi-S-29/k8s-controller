@@ -144,7 +144,17 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
             }
             return failedJobs[i].Status.StartTime.Before(failedJobs[j].Status.StartTime)
         })
-
+        for i, job := range failedJobs {
+            if int32(i) >= int32(len(failedJobs))-*cronJob.Spec.FailedJobsHistoryLimit {
+                break
+            }
+            if err := r.Delete(ctx, job, client.PropagationPolicy(metav1.DeletePropagationBackground)); client.IgnoreNotFound(err) != nil {
+                log.Error(err, "unable to delete old failed job", "job", job)
+            } else {
+                log.V(0).Info("deleted old failed job", "job", job)
+            }
+        }
+    }
 
 	if err := r.Status().Update(ctx, &cronJob); err != nil {
         log.Error(err, "unable to update CronJob status")
