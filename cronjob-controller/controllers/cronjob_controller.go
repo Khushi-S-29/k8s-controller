@@ -76,6 +76,12 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         return ctrl.Result{}, client.IgnoreNotFound(err)
     }
 
+     // Check if the CronJob is suspended
+     if cronJob.Spec.Suspend != nil && *cronJob.Spec.Suspend {
+        log.V(1).Info("cronjob suspended, skipping reconciliation")
+        return ctrl.Result{}, nil
+    }
+
     var childJobs kbatch.JobList
     if err := r.List(ctx, &childJobs, client.InNamespace(req.Namespace), client.MatchingFields{jobOwnerKey: req.Name}); err != nil {
         log.Error(err, "unable to list child Jobs")
