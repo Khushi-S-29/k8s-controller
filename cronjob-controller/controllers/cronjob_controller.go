@@ -104,7 +104,10 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         }
 
         scheduledTimeForJob, err := getScheduledTimeForJob(&job)
-        
+        if err != nil {
+            log.Error(err, "unable to parse schedule time for child job", "job", &job)
+            continue
+        }
 
         if scheduledTimeForJob != nil {
             if mostRecentTime == nil || mostRecentTime.Before(*scheduledTimeForJob) {
