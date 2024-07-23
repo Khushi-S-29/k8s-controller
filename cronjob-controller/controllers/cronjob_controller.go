@@ -88,7 +88,23 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
      var failedJobs []*kbatch.Job
      var mostRecentTime *time.Time // find the last run so we can update the status
 
-    return ctrl.Result{}, nil
+     for i, job := range childJobs.Items {
+
+        _, finishedType := isJobFinished(&job)
+
+        switch finishedType {
+        case "": 
+            activeJobs = append(activeJobs, &childJobs.Items[i])
+
+        case kbatch.JobFailed:
+            failedJobs = append(failedJobs, &childJobs.Items[i])
+
+        case kbatch.JobComplete:
+            successfulJobs = append(successfulJobs, &childJobs.Items[i])
+        }
+     }
+    
+     return ctrl.Result{}, nil
 
 }
 
