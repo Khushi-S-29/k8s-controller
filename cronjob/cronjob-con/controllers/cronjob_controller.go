@@ -73,7 +73,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	var mostRecentTime *time.Time
 
 	for i, job := range childJobs.Items {
-		_, finishedType := isJobFinished(&job) // Implement this function
+		_, finishedType := isJobFinished(&job)
 		switch finishedType {
 		case "": // Ongoing
 			activeJobs = append(activeJobs, &childJobs.Items[i])
@@ -83,7 +83,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			successfulJobs = append(successfulJobs, &childJobs.Items[i])
 		}
 
-		scheduledTimeForJob, err := getScheduledTimeForJob(&job) // Implement this function
+		scheduledTimeForJob, err := getScheduledTimeForJob(&job)
 		if err != nil {
 			log.Error(err, "unable to parse schedule time for child job", "job", &job)
 			continue
@@ -160,7 +160,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	missedRun, nextRun, err := getNextSchedule(&cronJob, r.Now()) // Implement this function
+	missedRun, nextRun, err := getNextSchedule(&cronJob, r.Now())
 	if err != nil {
 		log.Error(err, "unable to figure out CronJob schedule")
 		return ctrl.Result{}, nil
@@ -198,7 +198,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 	}
 
-	job, err := constructJobForCronJob(&cronJob, missedRun) // Implement this function
+	job, err := r.constructJobForCronJob(&cronJob, missedRun)
 	if err != nil {
 		log.Error(err, "unable to construct job from template")
 		return scheduledResult, nil
@@ -212,27 +212,6 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	log.V(1).Info("created Job for CronJob run", "job", job)
 	return scheduledResult, nil
 }
-
-// func (r *CronJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
-// 	if err := mgr.GetFieldIndexer().IndexField(context.TODO(), &kbatch.Job{}, jobOwnerKey, func(rawObj client.Object) []string {
-// 		job := rawObj.(*kbatch.Job)
-// 		owner := metav1.GetControllerOf(job)
-// 		if owner == nil {
-// 			return nil
-// 		}
-// 		if owner.APIVersion != apiGVStr || owner.Kind != "CronJob" {
-// 			return nil
-// 		}
-// 		return []string{owner.Name}
-// 	}); err != nil {
-// 		return err
-// 	}
-
-// 	return ctrl.NewControllerManagedBy(mgr).
-// 		For(&batchv1.CronJob{}).
-// 		Owns(&kbatch.Job{}).
-// 		Complete(r)
-// }
 
 func (r *CronJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := mgr.GetFieldIndexer().IndexField(context.TODO(), &kbatch.Job{}, jobOwnerKey, func(rawObj client.Object) []string {
@@ -252,7 +231,7 @@ func (r *CronJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&batchv1.CronJob{}).
 		Owns(&kbatch.Job{}).
-		Complete(r) // r is passed correctly here
+		Complete(r)
 }
 
 // Define the isJobFinished, getScheduledTimeForJob, getNextSchedule, and constructJobForCronJob functions here
@@ -283,7 +262,7 @@ func getNextSchedule(cronJob *batchv1.CronJob, now time.Time) (time.Time, time.T
 	return time.Time{}, time.Time{}, nil
 }
 
-func constructJobForCronJob(cronJob *batchv1.CronJob, scheduledTime time.Time) (*kbatch.Job, error) {
+func (r *CronJobReconciler) constructJobForCronJob(cronJob *batchv1.CronJob, scheduledTime time.Time) (*kbatch.Job, error) {
 	name := fmt.Sprintf("%s-%d", cronJob.Name, scheduledTime.Unix())
 
 	job := &kbatch.Job{
