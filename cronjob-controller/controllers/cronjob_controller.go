@@ -119,13 +119,22 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
     //If mostRecentTime is not nil, it assigns cronJob.Status.LastScheduleTime to a pointer of type metav1.Time initialized with the value pointed to by mostRecentTime.
     //If mostRecentTime is nil, it sets cronJob.Status.LastScheduleTime to nil.
     //Resets the cronJob.Status.Active slice to nil before populating it with references to active jobs.
-    
+
      if mostRecentTime != nil {
         cronJob.Status.LastScheduleTime = &metav1.Time{Time: *mostRecentTime}
     } else {
         cronJob.Status.LastScheduleTime = nil
     }
-
+    
+    for _, activeJob := range activeJobs {
+        jobRef, err := ref.GetReference(r.Scheme, activeJob)
+        if err != nil {
+            log.Error(err, "unable to make reference to active job", "job", activeJob)
+            continue
+        }
+        cronJob.Status.Active = append(cronJob.Status.Active, *jobRef)
+    }
+    
      return ctrl.Result{}, nil
 
 }
