@@ -17,6 +17,8 @@ limitations under the License.
 package v1
 
 import (
+	"github.com/robfig/cron/v3"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
@@ -34,8 +36,6 @@ func (r *CronJob) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
 //+kubebuilder:webhook:path=/mutate-batch-mydomain-com-v1-cronjob,mutating=true,failurePolicy=fail,sideEffects=None,groups=batch.mydomain.com,resources=cronjobs,verbs=create;update,versions=v1,name=mcronjob.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &CronJob{}
@@ -44,7 +44,7 @@ var _ webhook.Defaulter = &CronJob{}
 func (r *CronJob) Default() {
 	cronjoblog.Info("default", "name", r.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	// Defaulting logic
 	if r.Spec.ConcurrencyPolicy == "" {
 		r.Spec.ConcurrencyPolicy = AllowConcurrent
 	}
@@ -61,31 +61,30 @@ func (r *CronJob) Default() {
 	}
 }
 
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
 //+kubebuilder:webhook:path=/validate-batch-mydomain-com-v1-cronjob,mutating=false,failurePolicy=fail,sideEffects=None,groups=batch.mydomain.com,resources=cronjobs,verbs=create;update,versions=v1,name=vcronjob.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Validator = &CronJob{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateCreate() (admission.Warnings, error) {
+func (r *CronJob) ValidateCreate() error {
 	cronjoblog.Info("validate create", "name", r.Name)
 
-	return nil, r.validateCronJob()
+	return r.validateCronJob()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+func (r *CronJob) ValidateUpdate(old runtime.Object) error {
 	cronjoblog.Info("validate update", "name", r.Name)
 
-	return nil, r.validateCronJob()
+	return r.validateCronJob()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateDelete() (admission.Warnings, error) {
+func (r *CronJob) ValidateDelete() error {
 	cronjoblog.Info("validate delete", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
-	return nil, nil
+	// No validation logic upon deletion
+	return nil
 }
 
 func (r *CronJob) validateCronJob() error {
@@ -105,13 +104,18 @@ func (r *CronJob) validateCronJob() error {
 		r.Name, allErrs)
 }
 
+func (r *CronJob) validateCronJobName() *field.Error {
+	// Example validation for the CronJob name
+	if len(r.Name) > 63 {
+		return field.Invalid(field.NewPath("metadata").Child("name"), r.Name, "must be no more than 63 characters")
+	}
+	return nil
+}
+
 func (r *CronJob) validateCronJobSpec() *field.Error {
-	// The field helpers from the kubernetes API machinery help us return nicely
-	// structured validation errors.
 	return validateScheduleFormat(
 		r.Spec.Schedule,
 		field.NewPath("spec").Child("schedule"))
-
 }
 
 func validateScheduleFormat(schedule string, fldPath *field.Path) *field.Error {
