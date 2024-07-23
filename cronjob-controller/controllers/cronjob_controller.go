@@ -103,11 +103,14 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
             successfulJobs = append(successfulJobs, &childJobs.Items[i])
         }
 
+        scheduledTimeForJob, err := getScheduledTimeForJob(&job)
+        
+
         if scheduledTimeForJob != nil {
             if mostRecentTime == nil || mostRecentTime.Before(*scheduledTimeForJob) {
                 mostRecentTime = scheduledTimeForJob
             }
-            
+        }
      }
     
      return ctrl.Result{}, nil
