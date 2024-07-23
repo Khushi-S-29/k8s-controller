@@ -121,7 +121,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
     //Resets the cronJob.Status.Active slice to nil before populating it with references to active jobs.
     
     log.V(1).Info("job count", "active jobs", len(activeJobs), "successful jobs", len(successfulJobs), "failed jobs", len(failedJobs))
-    
+
     if mostRecentTime != nil {
         cronJob.Status.LastScheduleTime = &metav1.Time{Time: *mostRecentTime}
     } else {
@@ -137,7 +137,14 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         cronJob.Status.Active = append(cronJob.Status.Active, *jobRef)
     }
     
-    
+    if cronJob.Spec.FailedJobsHistoryLimit != nil {
+        sort.Slice(failedJobs, func(i, j int) bool {
+            if failedJobs[i].Status.StartTime == nil {
+                return failedJobs[j].Status.StartTime != nil
+            }
+            return failedJobs[i].Status.StartTime.Before(failedJobs[j].Status.StartTime)
+        })
+
 
 	if err := r.Status().Update(ctx, &cronJob); err != nil {
         log.Error(err, "unable to update CronJob status")
