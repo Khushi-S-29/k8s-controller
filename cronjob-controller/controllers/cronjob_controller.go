@@ -45,9 +45,13 @@ type CronJobReconciler struct {
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=batch.tutorial.kubebuilder.io,resources=cronjobs/finalizers,verbs=update
+
+
 var (
     scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
 )
+
+
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -57,12 +61,29 @@ var (
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.1/pkg/reconcile
+
+
 func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	// TODO(user): your logic here
 
-	return ctrl.Result{}, nil
+    var cronJob batchv1.CronJob
+    if err := r.Get(ctx, req.NamespacedName, &cronJob); err != nil {
+        log.Error(err, "unable to fetch CronJob")
+        // we'll ignore not-found errors, since they can't be fixed by an immediate
+        // requeue (we'll need to wait for a new notification), and we can get them
+        // on deleted requests.
+        return ctrl.Result{}, client.IgnoreNotFound(err)
+    }
+
+    var childJobs kbatch.JobList
+    if err := r.List(ctx, &childJobs, client.InNamespace(req.Namespace), client.MatchingFields{jobOwnerKey: req.Name}); err != nil {
+        log.Error(err, "unable to list child Jobs")
+        return ctrl.Result{}, err
+    }
+
+    return ctrl.Result{}, nil
+
 }
 
 // SetupWithManager sets up the controller with the Manager.
