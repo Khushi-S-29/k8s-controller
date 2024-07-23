@@ -102,6 +102,12 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         case kbatch.JobComplete:
             successfulJobs = append(successfulJobs, &childJobs.Items[i])
         }
+
+        if scheduledTimeForJob != nil {
+            if mostRecentTime == nil || mostRecentTime.Before(*scheduledTimeForJob) {
+                mostRecentTime = scheduledTimeForJob
+            }
+            
      }
     
      return ctrl.Result{}, nil
