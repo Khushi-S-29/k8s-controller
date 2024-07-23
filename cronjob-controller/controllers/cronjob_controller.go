@@ -82,6 +82,12 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         return ctrl.Result{}, err
     }
 
+     // find the active list of jobs
+     var activeJobs []*kbatch.Job
+     var successfulJobs []*kbatch.Job
+     var failedJobs []*kbatch.Job
+     var mostRecentTime *time.Time // find the last run so we can update the status
+
     return ctrl.Result{}, nil
 
 }
