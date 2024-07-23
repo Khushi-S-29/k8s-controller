@@ -83,12 +83,12 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
     }
 
      // find the active list of jobs
-     var activeJobs []*kbatch.Job
-     var successfulJobs []*kbatch.Job
-     var failedJobs []*kbatch.Job
-     var mostRecentTime *time.Time // find the last run so we can update the status
+    var activeJobs []*kbatch.Job
+    var successfulJobs []*kbatch.Job
+    var failedJobs []*kbatch.Job
+    var mostRecentTime *time.Time // find the last run so we can update the status
 
-     for i, job := range childJobs.Items {
+    for i, job := range childJobs.Items {
 
         _, finishedType := isJobFinished(&job)
 
@@ -119,8 +119,10 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
     //If mostRecentTime is not nil, it assigns cronJob.Status.LastScheduleTime to a pointer of type metav1.Time initialized with the value pointed to by mostRecentTime.
     //If mostRecentTime is nil, it sets cronJob.Status.LastScheduleTime to nil.
     //Resets the cronJob.Status.Active slice to nil before populating it with references to active jobs.
-
-     if mostRecentTime != nil {
+    
+    log.V(1).Info("job count", "active jobs", len(activeJobs), "successful jobs", len(successfulJobs), "failed jobs", len(failedJobs))
+    
+    if mostRecentTime != nil {
         cronJob.Status.LastScheduleTime = &metav1.Time{Time: *mostRecentTime}
     } else {
         cronJob.Status.LastScheduleTime = nil
@@ -135,7 +137,14 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
         cronJob.Status.Active = append(cronJob.Status.Active, *jobRef)
     }
     
-     return ctrl.Result{}, nil
+    
+
+	if err := r.Status().Update(ctx, &cronJob); err != nil {
+        log.Error(err, "unable to update CronJob status")
+        return ctrl.Result{}, err
+    }
+
+    return ctrl.Result{}, nil
 
 }
 
