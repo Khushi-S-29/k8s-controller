@@ -163,6 +163,10 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			}
 		}
 	}
+	if cronJob.Spec.Suspend != nil && *cronJob.Spec.Suspend {
+		log.V(1).Info("cronjob suspended, skipping")
+		return ctrl.Result{}, nil
+	}
 	return ctrl.Result{}, nil
 }
 
