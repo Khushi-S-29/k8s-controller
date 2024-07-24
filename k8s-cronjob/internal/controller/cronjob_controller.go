@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	batchv1 "tutorial.kubebuilder.io/project/api/v1"
+	batchv1 "tutorial.kubebuilder.io/k8s-cronjob/api/v1"
 )
 
 type realClock struct{}
@@ -259,7 +259,6 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 	scheduledResult := ctrl.Result{RequeueAfter: nextRun.Sub(r.Now())} // save this so we can re-use it elsewhere
-	log = log.WithValues("now", r.Now(), "next run", nextRun)
 
 	return ctrl.Result{}, nil
 }
