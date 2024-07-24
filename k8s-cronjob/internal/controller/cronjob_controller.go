@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -59,72 +60,109 @@ type CronJobReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.18.4/pkg/reconcile
 var (
-    scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
+	scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
 )
+
 func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 	var cronJob batchv1.CronJob
-    if err := r.Get(ctx, req.NamespacedName, &cronJob); err != nil {
-        log.Error(err, "unable to fetch CronJob")
-        // we'll ignore not-found errors, since they can't be fixed by an immediate
-        // requeue (we'll need to wait for a new notification), and we can get them
-        // on deleted requests.
-        return ctrl.Result{}, client.IgnoreNotFound(err)
-    }
-	// TODO(user): your logic here
+	if err := r.Get(ctx, req.NamespacedName, &cronJob); err != nil {
+		log.Error(err, "unable to fetch CronJob")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 	var childJobs kbatch.JobList
-    if err := r.List(ctx, &childJobs, client.InNamespace(req.Namespace), client.MatchingFields{jobOwnerKey: req.Name}); err != nil {
-        log.Error(err, "unable to list child Jobs")
-        return ctrl.Result{}, err
-    }
+	if err := r.List(ctx, &childJobs, client.InNamespace(req.Namespace), client.MatchingFields{jobOwnerKey: req.Name}); err != nil {
+		log.Error(err, "unable to list child Jobs")
+		return ctrl.Result{}, err
+	}
 	var activeJobs []*kbatch.Job
-    var successfulJobs []*kbatch.Job
-    var failedJobs []*kbatch.Job
-    var mostRecentTime *time.Time 
-	or i, job := range childJobs.Items {
-        _, finishedType := isJobFinished(&job)
-        switch finishedType {
-        case "": // ongoing
-            activeJobs = append(activeJobs, &childJobs.Items[i])
-        case kbatch.JobFailed:
-            failedJobs = append(failedJobs, &childJobs.Items[i])
-        case kbatch.JobComplete:
-            successfulJobs = append(successfulJobs, &childJobs.Items[i])
-        }
+	var successfulJobs []*kbatch.Job
+	var failedJobs []*kbatch.Job
+	var mostRecentTime *time.Time
+	for i, job := range childJobs.Items {
+		_, finishedType := isJobFinished(&job)
+		switch finishedType {
+		case "": // ongoing
+			activeJobs = append(activeJobs, &childJobs.Items[i])
+		case kbatch.JobFailed:
+			failedJobs = append(failedJobs, &childJobs.Items[i])
+		case kbatch.JobComplete:
+			successfulJobs = append(successfulJobs, &childJobs.Items[i])
+		}
 
-        // We'll store the launch time in an annotation, so we'll reconstitute that from
-        // the active jobs themselves.
-        scheduledTimeForJob, err := getScheduledTimeForJob(&job)
-        if err != nil {
-            log.Error(err, "unable to parse schedule time for child job", "job", &job)
-            continue
-        }
-        if scheduledTimeForJob != nil {
-            if mostRecentTime == nil || mostRecentTime.Before(*scheduledTimeForJob) {
-                mostRecentTime = scheduledTimeForJob
-            }
-        }
-    }
+		// We'll store the launch time in an annotation, so we'll reconstitute that from
+		// the active jobs themselves.
+		scheduledTimeForJob, err := getScheduledTimeForJob(&job)
+		if err != nil {
+			log.Error(err, "unable to parse schedule time for child job", "job", &job)
+			continue
+		}
+		if scheduledTimeForJob != nil {
+			if mostRecentTime == nil || mostRecentTime.Before(*scheduledTimeForJob) {
+				mostRecentTime = scheduledTimeForJob
+			}
+		}
+	}
 
-    if mostRecentTime != nil {
-        cronJob.Status.LastScheduleTime = &metav1.Time{Time: *mostRecentTime}
-    } else {
-        cronJob.Status.LastScheduleTime = nil
-    }
-    cronJob.Status.Active = nil
-    for _, activeJob := range activeJobs {
-        jobRef, err := ref.GetReference(r.Scheme, activeJob)
-        if err != nil {
-            log.Error(err, "unable to make reference to active job", "job", activeJob)
-            continue
-        }
-        cronJob.Status.Active = append(cronJob.Status.Active, *jobRef)
-    }
+	if mostRecentTime != nil {
+		cronJob.Status.LastScheduleTime = &metav1.Time{Time: *mostRecentTime}
+	} else {
+		cronJob.Status.LastScheduleTime = nil
+	}
+	cronJob.Status.Active = nil
+	for _, activeJob := range activeJobs {
+		jobRef, err := ref.GetReference(r.Scheme, activeJob)
+		if err != nil {
+			log.Error(err, "unable to make reference to active job", "job", activeJob)
+			continue
+		}
+		cronJob.Status.Active = append(cronJob.Status.Active, *jobRef)
+	}
 	log.V(1).Info("job count", "active jobs", len(activeJobs), "successful jobs", len(successfulJobs), "failed jobs", len(failedJobs))
 	if err := r.Status().Update(ctx, &cronJob); err != nil {
-        log.Error(err, "unable to update CronJob status")
-        return ctrl.Result{}, err
-    }
+		log.Error(err, "unable to update CronJob status")
+		return ctrl.Result{}, err
+	}
+	if cronJob.Spec.FailedJobsHistoryLimit != nil {
+		sort.Slice(failedJobs, func(i, j int) bool {
+			if failedJobs[i].Status.StartTime == nil {
+				return failedJobs[j].Status.StartTime != nil
+			}
+			return failedJobs[i].Status.StartTime.Before(failedJobs[j].Status.StartTime)
+		})
+		for i, job := range failedJobs {
+			if int32(i) >= int32(len(failedJobs))-*cronJob.Spec.FailedJobsHistoryLimit {
+				break
+			}
+			if err := r.Delete(ctx, job, client.PropagationPolicy(metav1.DeletePropagationBackground)); client.IgnoreNotFound(err) != nil {
+				log.Error(err, "unable to delete old failed job", "job", job)
+			} else {
+				log.V(0).Info("deleted old failed job", "job", job)
+			}
+		}
+	}
+
+	if cronJob.Spec.SuccessfulJobsHistoryLimit != nil {
+		sort.Slice(successfulJobs, func(i, j int) bool {
+			if successfulJobs[i].Status.StartTime == nil {
+				return successfulJobs[j].Status.StartTime != nil
+			}
+			return successfulJobs[i].Status.StartTime.Before(successfulJobs[j].Status.StartTime)
+		})
+		for i, job := range successfulJobs {
+			if int32(i) >= int32(len(successfulJobs))-*cronJob.Spec.SuccessfulJobsHistoryLimit {
+				break
+			}
+			if err := r.Delete(ctx, job, client.PropagationPolicy(metav1.DeletePropagationBackground)); err != nil {
+				log.Error(err, "unable to delete old successful job", "job", job)
+			} else {
+				log.V(0).Info("deleted old successful job", "job", job)
+			}
+		}
+	}
 	return ctrl.Result{}, nil
 }
 
