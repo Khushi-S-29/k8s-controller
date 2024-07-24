@@ -37,7 +37,7 @@ import (
 
 type realClock struct{}
 
-func (_ realClock) Now() time.Time { return time.Now() }
+func (realClock) Now() time.Time { return time.Now() }
 
 // Clock knows how to get the current time.
 // It can be used to fake out timing for testing.
@@ -200,7 +200,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	getNextSchedule := func(cronJob *batchv1.CronJob, now time.Time) (lastMissed time.Time, next time.Time, err error) {
 		sched, err := cron.ParseStandard(cronJob.Spec.Schedule)
 		if err != nil {
-			return time.Time{}, time.Time{}, fmt.Errorf("Unparseable schedule %q: %v", cronJob.Spec.Schedule, err)
+			return time.Time{}, time.Time{}, fmt.Errorf("unparseable schedule %q: %v", cronJob.Spec.Schedule, err)
 		}
 
 		// for optimization purposes, cheat a bit and start from our last observed run time
@@ -244,7 +244,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			starts++
 			if starts > 100 {
 				// We can't get the most recent times so just return an empty slice
-				return time.Time{}, time.Time{}, fmt.Errorf("Too many missed start times (> 100). Set or decrease .spec.startingDeadlineSeconds or check clock skew.")
+				return time.Time{}, time.Time{}, fmt.Errorf("too many missed start times (> 100). Set or decrease .spec.startingDeadlineSeconds or check clock skew")
 			}
 		}
 		return lastMissed, sched.Next(now), nil
@@ -260,12 +260,93 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 	scheduledResult := ctrl.Result{RequeueAfter: nextRun.Sub(r.Now())} // save this so we can re-use it elsewhere
 
-	return ctrl.Result{}, nil
+	log = log.WithValues("now", r.Now(), "next run", nextRun)
+	if missedRun.IsZero() {
+		log.V(1).Info("no upcoming scheduled times, sleeping until next")
+		return scheduledResult, nil
+	}
+
+	// make sure we're not too late to start the run
+	log = log.WithValues("current run", missedRun)
+	tooLate := false
+	if cronJob.Spec.StartingDeadlineSeconds != nil {
+		tooLate = missedRun.Add(time.Duration(*cronJob.Spec.StartingDeadlineSeconds) * time.Second).Before(r.Now())
+	}
+	if tooLate {
+		log.V(1).Info("missed starting deadline for last run, sleeping till next")
+		// TODO(directxman12): events
+		return scheduledResult, nil
+	}
+	// figure out how to run this job -- concurrency policy might forbid us from running
+	// multiple at the same time...
+	if cronJob.Spec.ConcurrencyPolicy == batchv1.ForbidConcurrent && len(activeJobs) > 0 {
+		log.V(1).Info("concurrency policy blocks concurrent runs, skipping", "num active", len(activeJobs))
+		return scheduledResult, nil
+	}
+
+	// ...or instruct us to replace existing ones...
+	if cronJob.Spec.ConcurrencyPolicy == batchv1.ReplaceConcurrent {
+		for _, activeJob := range activeJobs {
+			// we don't care if the job was already deleted
+			if err := r.Delete(ctx, activeJob, client.PropagationPolicy(metav1.DeletePropagationBackground)); client.IgnoreNotFound(err) != nil {
+				log.Error(err, "unable to delete active job", "job", activeJob)
+				return ctrl.Result{}, err
+			}
+		}
+	}
+	constructJobForCronJob := func(cronJob *batchv1.CronJob, scheduledTime time.Time) (*kbatch.Job, error) {
+		// We want job names for a given nominal start time to have a deterministic name to avoid the same job being created twice
+		name := fmt.Sprintf("%s-%d", cronJob.Name, scheduledTime.Unix())
+
+		job := &kbatch.Job{
+			ObjectMeta: metav1.ObjectMeta{
+				Labels:      make(map[string]string),
+				Annotations: make(map[string]string),
+				Name:        name,
+				Namespace:   cronJob.Namespace,
+			},
+			Spec: *cronJob.Spec.JobTemplate.Spec.DeepCopy(),
+		}
+		for k, v := range cronJob.Spec.JobTemplate.Annotations {
+			job.Annotations[k] = v
+		}
+		job.Annotations[scheduledTimeAnnotation] = scheduledTime.Format(time.RFC3339)
+		for k, v := range cronJob.Spec.JobTemplate.Labels {
+			job.Labels[k] = v
+		}
+		if err := ctrl.SetControllerReference(cronJob, job, r.Scheme); err != nil {
+			return nil, err
+		}
+
+		return job, nil
+	}
+	// actually make the job...
+	job, err := constructJobForCronJob(&cronJob, missedRun)
+	if err != nil {
+		log.Error(err, "unable to construct job from template")
+		// don't bother requeuing until we get a change to the spec
+		return scheduledResult, nil
+	}
+
+	// ...and create it on the cluster
+	if err := r.Create(ctx, job); err != nil {
+		log.Error(err, "unable to create Job for CronJob", "job", job)
+		return ctrl.Result{}, err
+	}
+
+	log.V(1).Info("created Job for CronJob run", "job", job)
+	return scheduledResult, nil
+
 }
+
+var (
+	jobOwnerKey = ".metadata.controller"
+	apiGVStr    = batchv1.GroupVersion.String()
+)
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *CronJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&batchv1.CronJob{}).
-		Complete(r)
+	// set up a real clock, since we're not in a test
+
+	Complete(r)
 }
