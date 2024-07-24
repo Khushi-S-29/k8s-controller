@@ -21,12 +21,16 @@ import (
 	"sort"
 	"time"
 
+	kbatch "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	ref "k8s.io/client-go/tools/reference"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	batchv1 "tutorial.kubebuilder.io/k8s-cronjob/api/v1"
+	batchv1 "tutorial.kubebuilder.io/project/api/v1"
 )
 
 type realClock struct{}
@@ -82,6 +86,28 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	var successfulJobs []*kbatch.Job
 	var failedJobs []*kbatch.Job
 	var mostRecentTime *time.Time
+	isJobFinished := func(job *kbatch.Job) (bool, kbatch.JobConditionType) {
+		for _, c := range job.Status.Conditions {
+			if (c.Type == kbatch.JobComplete || c.Type == kbatch.JobFailed) && c.Status == corev1.ConditionTrue {
+				return true, c.Type
+			}
+		}
+
+		return false, ""
+	}
+	getScheduledTimeForJob := func(job *kbatch.Job) (*time.Time, error) {
+		timeRaw := job.Annotations[scheduledTimeAnnotation]
+		if len(timeRaw) == 0 {
+			return nil, nil
+		}
+
+		timeParsed, err := time.Parse(time.RFC3339, timeRaw)
+		if err != nil {
+			return nil, err
+		}
+		return &timeParsed, nil
+	}
+
 	for i, job := range childJobs.Items {
 		_, finishedType := isJobFinished(&job)
 		switch finishedType {
@@ -167,6 +193,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		log.V(1).Info("cronjob suspended, skipping")
 		return ctrl.Result{}, nil
 	}
+
 	return ctrl.Result{}, nil
 }
 
