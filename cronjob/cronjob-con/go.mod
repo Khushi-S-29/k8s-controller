@@ -1,6 +1,6 @@
 module gitlab.com/avengehers/k8s-controller
 
-go 1.19
+go 1.22.5
 
 require (
 	github.com/onsi/ginkgo/v2 v2.1.4
