@@ -42,7 +42,7 @@
 \headcommand {\beamer@framepages {9}{9}}
 \headcommand {\beamer@sectionpages {9}{9}}
 \headcommand {\beamer@subsectionpages {9}{9}}
-\headcommand {\sectionentry {9}{Steps to Build a CronJob Kubernetes Controller}{10}{Steps to Build a CronJob Kubernetes Controller}{0}}
+\headcommand {\sectionentry {9}{Steps we followed to Build a CronJob k8s Controller}{10}{Steps we followed to Build a CronJob k8s Controller}{0}}
 \headcommand {\slideentry {9}{0}{1}{10/10}{}{0}}
 \headcommand {\beamer@framepages {10}{10}}
 \headcommand {\beamer@sectionpages {10}{10}}

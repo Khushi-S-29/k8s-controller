@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.8.13)  25 AUG 2024 10:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.8.13)  25 AUG 2024 10:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1080,28 +1080,31 @@ Overfull \hbox (520.33594pt too wide) has occurred while \output is active
 \openout9 = `roadShow.snm'.
 
  (./roadShow.aux)
-Package rerunfilecheck Info: File `roadShow.out' has not changed.
-(rerunfilecheck)             Checksum: BBFD5C90B137D1C8E032BE4766B8FDF7;2008.
+
+Package rerunfilecheck Warning: File `roadShow.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `roadShow.out':
+(rerunfilecheck)             Before: BBFD5C90B137D1C8E032BE4766B8FDF7;2008
+(rerunfilecheck)             After:  90053538F106DBB272ECBDF088A616DA;2039.
  ) 
 Here is how much of TeX's memory you used:
- 22258 strings out of 478287
- 434826 string characters out of 5849289
- 704712 words of memory out of 5000000
+ 22257 strings out of 478287
+ 434814 string characters out of 5849289
+ 704825 words of memory out of 5000000
  39953 multiletter control sequences out of 15000+600000
  476608 words of font info for 54 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,122p,409b,770s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{Navigation14} has been referenced but does not ex
-ist, replaced by a fixed one
-
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on roadShow.pdf (13 pages, 569286 bytes).
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
+Output written on roadShow.pdf (13 pages, 569393 bytes).
 PDF statistics:
- 791 PDF objects out of 1000 (max. 8388607)
- 721 compressed objects within 8 object streams
- 40 named destinations out of 1000 (max. 500000)
+ 790 PDF objects out of 1000 (max. 8388607)
+ 720 compressed objects within 8 object streams
+ 39 named destinations out of 1000 (max. 500000)
  169 words of extra memory for PDF output out of 10000 (max. 10000000)
 
