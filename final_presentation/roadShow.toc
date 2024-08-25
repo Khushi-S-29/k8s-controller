@@ -1,0 +1,12 @@
+\beamer@sectionintoc {1}{Our Team}{2}{0}{1}
+\beamer@sectionintoc {2}{Introduction to Kubernetes}{3}{0}{2}
+\beamer@sectionintoc {3}{Containerized Applications}{4}{0}{3}
+\beamer@sectionintoc {4}{Why We Need Kubernetes}{5}{0}{4}
+\beamer@sectionintoc {5}{Kubernetes Controllers}{6}{0}{5}
+\beamer@sectionintoc {6}{Kubernetes CronJob Controller}{7}{0}{6}
+\beamer@sectionintoc {7}{How the CronJob Controller Works}{8}{0}{7}
+\beamer@sectionintoc {8}{How the CronJob Controller Works}{9}{0}{8}
+\beamer@sectionintoc {9}{Steps to Build a CronJob Kubernetes Controller}{10}{0}{9}
+\beamer@sectionintoc {10}{Challenges Faced}{11}{0}{10}
+\beamer@sectionintoc {11}{Key Learnings}{12}{0}{11}
+\beamer@sectionintoc {12}{Thank You}{13}{0}{12}
